@@ -56,10 +56,10 @@ function Chat() {
 
   return (
     <div className="flex flex-col h-screen">
-      <header className="flex flex-row bg-gray-800 text-white p-4 justify-between">
+      <header className="flex flex-row bg-gradient-to-l from-purple-500 to-white-100 text-white p-4 justify-between">
         <div className="flex items-center space-x-4">
-          <img src="/kim.svg" alt="KIM Logo" className="h-10 w-10" />
-          <h1 className="text-2xl">KIM Chat</h1>
+          <img src="/kim.svg" alt="KIM Logo" className="h-15 w-15" />
+          <h1 className="text-xl text-purple-700">KIM Chat</h1>
         </div>
         <div className="flex items-center space-x-4 gap-4">
           <SearchBar onUserFound={handleUserFound} />

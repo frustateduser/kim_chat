@@ -64,7 +64,7 @@ function Chatbox({ messages = [], onSendMessage, selectedChat }) {
                 />
                 <button
                     onClick={handleSend}
-                    className="bg-blue-500 text-white p-2 rounded ml-2"
+                    className="bg-purple-500 text-white p-2 rounded ml-2"
                 >
                     Send
                 </button>

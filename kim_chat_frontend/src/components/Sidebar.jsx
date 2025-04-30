@@ -9,7 +9,7 @@ const Sidebar = ({ chats, onSelectChat }) => {
           chats.map((chat) => (
             <li
               key={`${chat.conversationId}-${chat.interactedUserId}`} // Ensure unique key
-              className="p-2 bg-white rounded shadow cursor-pointer hover:bg-gray-200"
+              className="p-2 bg-white rounded shadow cursor-pointer hover:bg-purple-400"
               onClick={() => onSelectChat(chat)}
             >
               {chat.interactedUserId.name || "Unknown User"} {/* Display user name */}

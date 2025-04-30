@@ -15,15 +15,15 @@ function Home() {
                 return <Login />;
             default:
                 return (
-                    <div className="flex flex-wrap justify-center gap-6">
+                    <div className="flex flex-wrap justify-center gap-6 overflow-hidden">
                         <button
-                            className="bg-gray-500 p-6 rounded-lg shadow-lg w-80 text-center"
+                            className="bg-purple-300 p-6 rounded-lg shadow-lg w-80 text-center"
                             onClick={() => setCurrentPage('signup')}
                         >
                             Signup
                         </button>
                         <button
-                            className="bg-gray-500 p-6 rounded-lg shadow-lg w-80 text-center"
+                            className="bg-purple-300 p-6 rounded-lg shadow-lg w-80 text-center"
                             onClick={() => setCurrentPage('login')}
                         >
                             Login
@@ -35,9 +35,9 @@ function Home() {
 
     return (
         <>
-            <div className="bg-gray-900 min-h-screen flex flex-col">
+            <div className="bg-white-200 min-h-screen flex flex-col">
                 <Navbar />
-                <div className="flex-grow flex items-center justify-center bg-gray-800 bg-opacity-50">
+                <div className="flex-grow flex items-center justify-center bg-black-100 bg-opacity-50">
                     {renderPage()}
                 </div>
                 <Footer />

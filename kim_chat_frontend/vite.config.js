@@ -8,4 +8,16 @@ export default defineConfig({
     react(),
     tailwindcss()
   ],
+  server: {
+    fs: {
+        // Explicitly deny access to sensitive directories
+        deny: [
+            '/.env',          // Deny access to environment files
+            '/node_modules',  // Deny access to node_modules
+            '/.git',          // Deny access to Git metadata
+            '/etc',           // Deny access to system configuration files
+            '/usr',           // Deny access to system directories
+        ],
+    },
+},
 })

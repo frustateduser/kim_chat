@@ -45,19 +45,19 @@ export default function SignUp() {
     }
 
     return (
-        <form className="m-3.5 p-4 border border-gray-900/10 rounded-4xl shadow-md">
+        <form className="m-2 p-2 border border-gray-900/10 rounded-4xl shadow-md">
             <ToastContainer />  {/* toast container gives a message at top right corner*/}
-            <div className="space-y-12">
+            <div className="space-y-8">
                 <div className="border-b border-gray-900/10 pb-12">
                     <h2 className="text-base/7 font-semibold text-gray-900">Sign Up</h2>
                     <p className="mt-1 text-sm/6 text-gray-600">
                         Welcome to KIM Chat! Please fill out the form below to create an account and start chatting with your friends and family.
                     </p>
 
-                    <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                    <div className="mt-6 grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-6">
 
                         <div className="sm:col-span-3">
-                            <div className="mt-2">
+                            <div className="mt-1">
                                 <label htmlFor="username" className="block text-sm/6 font-medium text-gray-900">
                                     Name
                                 </label>
