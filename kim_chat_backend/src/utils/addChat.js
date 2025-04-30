@@ -2,11 +2,11 @@ const Chats = require('../models/Message');
 
 const addChat = async (userId,interactedUserId,conversationId ) => {
     await Chats.updateOne(
-        { userId: userId },
+        { userId:{$eq: userId} },
         {
             $addToSet: {
                 interactions: {
-                    interactedUserId: interactedUserId,
+                    interactedUserId: {$eq:interactedUserId},
                     conversationId: conversationId,
                 },
             },

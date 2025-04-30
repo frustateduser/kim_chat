@@ -13,7 +13,7 @@ const searchUser = async (req, res) => {
             return res.status(400).json({ message: 'Username is required' });
         }
 
-        let recipient = await Users.findOne({ username: username }) // Find the recipient user by username
+        let recipient = await Users.findOne({ username:{$eq : username} }) // Find the recipient user by username
 
         if (!recipient) {
             return res.status(204).json({ message: 'User not found enter correct username' });
