@@ -1,6 +1,20 @@
 import React from "react";
+import searchUser from "../api/serchUser";
 
-const SearchBar = () => {
+const SearchBar = ({onUserFound}) => {
+  const [searchTerm, setSearchTerm] = React.useState("");
+  const userId = localStorage.getItem("userId");
+
+  const handleSearch = async () => {
+    try{
+      const userData = await searchUser(userId, searchTerm);
+      onUserFound(userData);
+      setSearchTerm("");
+    }catch (error) {
+      console.log("Error searching for user:", error);
+    }
+  }
+
   return (
     <div className="max-w-md mx-auto">
       <label
@@ -30,6 +44,14 @@ const SearchBar = () => {
         <input
           type="search"
           id="default-search"
+          placeholder="username"
+          onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault(); // Prevent form submission
+              handleSearch();
+            }
+          }}
           className="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
         />
       </div>
