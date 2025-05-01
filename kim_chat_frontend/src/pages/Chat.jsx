@@ -5,11 +5,13 @@ import Dropdown from "../components/Dropdown";
 import SearchBar from "../components/SearchBar";
 import Chatbox from "../components/Chatbox";
 import fetchChats from "../api/fetchChats";
+import {io} from "socket.io-client";
 
 function Chat() {
   const [selectedChat, setSelectedChat] = useState(null);
   const [messages, setMessages] = useState([]);
   const [recentChats, setRecentChats] = useState([]);
+  const [socket, setSocket] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token"); // Assuming the token is stored in localStorage
@@ -30,7 +32,31 @@ function Chat() {
     }
 
     loadChats();
+
+    const newSocket = io(import.meta.env.VITE_REACT_APP_BACKEND_URL); // Replace with your server URL
+    setSocket(newSocket);
+
+    return () => {
+      newSocket.disconnect(); // Clean up the socket connection on unmount
+    };
+
   }, []);
+
+  useEffect(() => {
+    if (socket && selectedChat){
+      socket.emit("joinRoom", selectedChat.conversationId); // Join the chat room
+
+      socket.on("receiveMessage", (message) => {
+        setMessages((prevMessages) => [...prevMessages, message]); // Update messages state
+      });
+    }
+
+    return () => {
+      if (socket) {
+        socket.off("receiveMessage"); // Clean up the event listener on unmount
+      }
+    };
+  }, [socket, selectedChat]); // Re-run when socket or selectedChat changes
 
   const handleUserFound = (userData) => {
     if (!userData) {
@@ -61,6 +87,15 @@ function Chat() {
   const handleSendMessage = (text) => {
     const newMessage = { sender: "User", text };
     setMessages((prevMessages) => [...prevMessages, newMessage]);
+
+    // Emit the message to the server
+    if (socket && selectedChat) {
+      socket.emit("sendMessage", {
+        conversationId: selectedChat.conversationId,
+        senderId: localStorage.getItem("userId"), // Assuming userId is stored in localStorage
+        message: text,
+      });
+    }
   };
 
   return (

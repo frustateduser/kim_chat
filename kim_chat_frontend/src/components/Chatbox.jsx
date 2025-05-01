@@ -43,8 +43,13 @@ function Chatbox({ messages = [], onSendMessage, selectedChat }) {
                 {Array.isArray(chatMessages) && chatMessages.length > 0 ? (
                     chatMessages.map((message, index) => (
                         <div key={index} className="mb-4">
-                            <div className="text-sm text-gray-600">{message.sender}</div>
-                            <div className="p-2 bg-white rounded shadow">{message.text}</div>
+                            <div className="text-sm text-gray-600">
+                                <span className="font-bold">{message.sender?.name || "Unknown Sender"}</span> {/* Sender's name */}
+                                <span className="ml-2 text-gray-400 text-xs">
+                                    {new Date(message.timestamp).toLocaleString()} {/* Timestamp */}
+                                </span>
+                            </div>
+                            <div className="p-2 bg-white rounded shadow">{message.message}</div>
                         </div>
                     ))
                 ) : (

@@ -11,7 +11,7 @@ const fetchChatHistory = async (req, res) => {
         }
 
         // Find the conversation by conversationId
-        const conversation = await Conversations.findOne({conversationId: conversationId });
+        const conversation = await Conversations.findOne({conversationId: conversationId }).populate('messages.sender', 'name username'); // Populate sender details
         if (!conversation) {
             return res.status(204).json({ message: 'Conversation not found' });
         }
