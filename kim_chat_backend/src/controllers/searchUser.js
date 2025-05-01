@@ -13,41 +13,42 @@ const searchUser = async (req, res) => {
             return res.status(400).json({ message: 'Username is required' });
         }
 
-        let recipient = await Users.findOne({ username:{$eq : username} }) // Find the recipient user by username
-
+        let recipient = await Users.findOne({ username: username });
         if (!recipient) {
-            return res.status(204).json({ message: 'User not found enter correct username' });
+            return res.status(204).json({ message: 'User not found. Enter correct username.' });
         }
 
-        let conversationId = generateConversationId(userId, recipient._id); // Generate a unique conversation ID
+        let conversationId = generateConversationId(userId, recipient._id);
 
-        let conversation = await Conversations.findOne({ conversationId: conversationId }); // Check if the conversation already exists
-
+        let conversation = await Conversations.findOne({ conversationId: conversationId });
         if (!conversation) {
-            // Create a new conversation if it doesn't exist
-            createConversation(conversationId); // Call the function to create a new conversation
+            createConversation(conversationId);
         }
 
-        // Update chat interactions in the Chats schema for the requesting user
-        addChat(userId, recipient._id, conversationId); // Call the function to add chat interactions
+        try {
+            await addChat(userId, recipient._id, conversationId);
+            await addChat(recipient._id, userId, conversationId);
+        } catch (error) {
+            if (error.code === 11000) {
+                console.log("Duplicate conversationId detected. Skipping insertion.");
+            } else {
+                throw error;
+            }
+        }
 
-        // Update chat interactions in the Chats schema for the recipient user
-        addChat(recipient._id, userId, conversationId); // Call the function to add chat interactions
-
-        // Respond with success and conversation details
         res.status(200).json({
             message: 'User found and conversation updated/created successfully.',
             conversationId: conversationId,
             recipient: {
+                name: recipient.name,
                 username: recipient.username,
                 userId: recipient._id,
             },
         });
-
     } catch (error) {
-        console.error('Error searching for user:', error); // Log any errors
-        res.status(500).json({ message: 'Internal server error', error: error }); // Return 500 for server errors
+        console.error('Error searching for user:', error);
+        res.status(500).json({ message: 'Internal server error', error: error });
     }
-}
+};
 
 module.exports = { searchUser };

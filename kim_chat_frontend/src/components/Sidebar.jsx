@@ -8,11 +8,11 @@ const Sidebar = ({ chats, onSelectChat }) => {
         {Array.isArray(chats) && chats.length > 0 ? (
           chats.map((chat) => (
             <li
-              key={`${chat.conversationId}-${chat.interactedUserId}`} // Ensure unique key
+              key={`${chat.conversationId}-${chat.interactedUserId?._id}`} // Ensure unique key
               className="p-2 bg-white rounded shadow cursor-pointer hover:bg-purple-400"
               onClick={() => onSelectChat(chat)}
             >
-              {chat.interactedUserId.name || "Unknown User"} {/* Display user name */}
+              {chat.interactedUserId?.name || "Unknown User"} {/* Display user name */}
             </li>
           ))
         ) : (

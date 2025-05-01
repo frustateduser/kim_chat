@@ -6,14 +6,14 @@ const SearchBar = ({onUserFound}) => {
   const userId = localStorage.getItem("userId");
 
   const handleSearch = async () => {
-    try{
-      const userData = await searchUser(userId, searchTerm);
-      onUserFound(userData);
-      setSearchTerm("");
-    }catch (error) {
-      console.log("Error searching for user:", error);
+    try {
+        const userData = await searchUser(userId, searchTerm);
+        onUserFound(userData); // Pass the userData to the parent component
+        setSearchTerm("");
+    } catch (error) {
+        console.log("Error searching for user:", error);
     }
-  }
+};
 
   return (
     <div className="max-w-md mx-auto">

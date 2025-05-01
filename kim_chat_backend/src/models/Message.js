@@ -15,12 +15,10 @@ const ChatSchema = new Schema({
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'User', // Reference to the User model
                 required: true,
-                unique: true // Ensure each interaction is unique
             },
             conversationId: {
                 type: String, // Unique conversation ID
-                required: true,
-                unique: true // Ensure each conversation ID is unique
+                required: true
             }
         }
     ]

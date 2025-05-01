@@ -30,6 +30,7 @@ function Login() {
     axios.post(import.meta.env.VITE_REACT_APP_LOGIN_API_URL, formData).then((res) => {
       console.log(res.data)
       localStorage.setItem('token', res.data.token); // Store the token in localStorage
+      localStorage.setItem('userId', res.data.user._id); // Store the userId in localStorage
       toast.success('User logged in successfully')
       Navigate('/chat', { replace: true })
     }).then((res) => {
