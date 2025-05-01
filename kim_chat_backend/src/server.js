@@ -4,7 +4,6 @@ const cors = require("cors");
 const connectDataBase = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
-const chatRoutes = require("./routes/chatRoutes");
 
 dotenv.config();
 connectDataBase();
@@ -15,7 +14,6 @@ app.use(cors());
 
 app.use('/api/auth', authRoutes);
 app.use("/api/user", userRoutes); 
-app.use("/api/chat", chatRoutes);
 
 
 app.listen(process.env.server_port_local, () => {
