@@ -7,7 +7,6 @@ const fetchProfile = (token) => {
             Authorization: `Bearer ${token}`,
         }
     }).then((res) => {
-        console.log(res)
         localStorage.setItem('userId', res.data.userId); // Store the userId in localStorage
     }).catch((err)=>{
         console.log(err)
