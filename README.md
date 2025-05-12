@@ -93,10 +93,10 @@ Create a `.env` file in the frontend root:
 VITE_REACT_APP_SIGNUP_API_URL=http://localhost:3000/api/auth/signup
 VITE_REACT_APP_LOGIN_API_URL=http://localhost:3000/api/auth/login
 VITE_REACT_APP_PROFILE_API_URL=http://localhost:3000/api/user/profile
-VITE_REACT_APP_FETCH_CHATS_API_URL = http://localhost:3000/api/chat/users/
+VITE_REACT_APP_FETCH_CHATS_API_URL=http://localhost:3000/api/chat/users/
 VITE_REACT_APP_SEARCH_USER_API_URL=http://localhost:3000/api/chat/search
-VITE_REACT_APP_FETCH_CONVERSATION_API_URL =http://localhost:3000/api/chat/history/
-VITE_REACT_APP_BACKEND_URL= http://localhost:3000
+VITE_REACT_APP_FETCH_CONVERSATION_API_URL=http://localhost:3000/api/chat/history/
+VITE_REACT_APP_BACKEND_URL=http://localhost:3000
 ```
 
 Start the backend server:
