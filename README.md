@@ -66,7 +66,7 @@ npm install
 Create a `.env` file in the backend root:
 
 ```env
-server_port_local = 3000
+PORT = 3000
 MONGO_URI = mongodb://localhost:27017/kim_chat
 JWT_SECRET = @KIM_chat.secret-k3y
 CLIENT_URL = http://localhost:5173
