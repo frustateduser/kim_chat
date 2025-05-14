@@ -66,9 +66,10 @@ npm install
 Create a `.env` file in the backend root:
 
 ```env
-PORT=3000
-MONGO_URI=mongodb://localhost:27017/kimchat
-JWT_SECRET=your_jwt_secret
+PORT = 3000
+MONGO_URI = mongodb://localhost:27017/kim_chat
+JWT_SECRET = @KIM_chat.secret-k3y
+CLIENT_URL = http://localhost:5173
 ```
 
 Start the backend server:
@@ -92,6 +93,10 @@ Create a `.env` file in the frontend root:
 VITE_REACT_APP_SIGNUP_API_URL=http://localhost:3000/api/auth/signup
 VITE_REACT_APP_LOGIN_API_URL=http://localhost:3000/api/auth/login
 VITE_REACT_APP_PROFILE_API_URL=http://localhost:3000/api/user/profile
+VITE_REACT_APP_FETCH_CHATS_API_URL=http://localhost:3000/api/chat/users/
+VITE_REACT_APP_SEARCH_USER_API_URL=http://localhost:3000/api/chat/search
+VITE_REACT_APP_FETCH_CONVERSATION_API_URL=http://localhost:3000/api/chat/history/
+VITE_REACT_APP_BACKEND_URL=http://localhost:3000
 ```
 
 Start the backend server:
