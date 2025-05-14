@@ -178,7 +178,7 @@ kim_chat/
 
 ## 🧑‍💻 Contributing
 
-Contributions are welcome!
+Contributions are welcome! See [Contribution guidelines](https://github.com/frustateduser/kim_chat/blob/master/CONTRIBUTING.md) for more info
 
 1. Fork the repository
 2. Create a new branch: `git checkout -b feature-name`
