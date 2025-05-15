@@ -1,11 +1,8 @@
-const express = require("express");
-const {authMiddleware} = require("../middleware/authMiddleware");
-const rateLimit = require("express-rate-limit");
-
-
+import express from "express";
+import { authMiddleware } from "../middleware/authMiddleware.js";
+import rateLimit from "express-rate-limit";
 
 const router = express.Router();
-
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -13,10 +10,9 @@ const limiter = rateLimit({
   message: "Too many signup attempts from this IP, please try again later.",
 });
 
-
 // Protected route example
-router.get("/profile",limiter, authMiddleware, (req, res) => {
+router.get("/profile", limiter, authMiddleware, (req, res) => {
   res.json({ message: "Welcome to your profile", userId: req.user.id });
 });
 
-module.exports = router;
+export default router;

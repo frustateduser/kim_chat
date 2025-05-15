@@ -203,3 +203,54 @@ Inspired by modern chat platforms like Discord and WhatsApp. Built for learning,
 ## 🔗 Contact
 
 For questions or feedback, open an issue or reach out via GitHub.
+
+---
+
+## Running Workflows Locally
+
+Before pushing your changes to a GitHub remote branch, it is recommended to run all workflows locally to ensure everything works as expected.
+
+### Steps to Run Workflows Locally
+
+1. **Install Dependencies**:
+   - Navigate to the respective directories and install the required dependencies:
+     ```powershell
+     cd kim_chat_frontend
+     npm install
+
+     cd ../kim_chat_backend
+     npm install
+     ```
+
+2. **Run ESLint Workflow**:
+   - For the frontend:
+     ```powershell
+     cd kim_chat_frontend
+     npx eslint . --ext .js,.jsx,.ts,.tsx
+     ```
+   - For the backend:
+     ```powershell
+     cd ../kim_chat_backend
+     npx eslint . --ext .js
+     ```
+
+3. **Run Tests (if applicable)**:
+   - If your project includes tests, run them locally:
+     ```powershell
+     npm test
+     ```
+
+4. **Build the Project**:
+   - Ensure the project builds successfully:
+     ```powershell
+     cd kim_chat_frontend
+     npm run build
+
+     cd ../kim_chat_backend
+     npm run build
+     ```
+
+5. **Verify Other Workflows**:
+   - If there are additional workflows, follow their specific instructions to run them locally.
+
+By following these steps, you can ensure that your changes are ready for submission and meet the project's quality standards.

@@ -1,4 +1,4 @@
-const Chats = require('../models/Message');
+import Chats from '../models/Message.js';
 
 const addChat = async (userId, interactedUserId, conversationId) => {
     try {
@@ -22,4 +22,4 @@ const addChat = async (userId, interactedUserId, conversationId) => {
     }
 };
 
-module.exports = { addChat };
+export { addChat };

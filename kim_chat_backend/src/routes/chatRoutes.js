@@ -1,9 +1,9 @@
-const express = require('express');
-const { fetchUserInteractions } = require('../controllers/userController');
-const { fetchChatHistory } = require('../controllers/chatController');
-const {searchUser} = require('../controllers/searchUser');
+import express from 'express';
+import { fetchUserInteractions } from '../controllers/userController.js';
+import { fetchChatHistory } from '../controllers/chatController.js';
+import { searchUser } from '../controllers/searchUser.js';
 const router = express.Router();
-const RateLimit = require('express-rate-limit');
+import RateLimit from 'express-rate-limit';
 
 // Rate limiting middleware to prevent abuse
 const limiter = RateLimit({
@@ -12,9 +12,8 @@ const limiter = RateLimit({
 });
 
 // Route to fetch all chat interactions of a user
-router.get('/users/:userId/interactions',limiter, fetchUserInteractions);
-router.get('/history/:conversationId',limiter, fetchChatHistory);
-router.post('/search',limiter, searchUser);
+router.get('/users/:userId/interactions', limiter, fetchUserInteractions);
+router.get('/history/:conversationId', limiter, fetchChatHistory);
+router.post('/search', limiter, searchUser);
 
-
-module.exports = router;
+export default router;

@@ -1,4 +1,4 @@
-const Conversations = require('../models/ChatRoom'); // Import the Conversations model
+import Conversations from '../models/ChatRoom.js'; // Import the Conversations model
 
 
  const createConversation = async (conversationId) => {
@@ -10,4 +10,4 @@ const Conversations = require('../models/ChatRoom'); // Import the Conversations
 }
 
 
-module.exports = { createConversation }; 
+export { createConversation };

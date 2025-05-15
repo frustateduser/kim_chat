@@ -37,7 +37,7 @@ export default function SignUp() {
         axios.post(import.meta.env.VITE_REACT_APP_SIGNUP_API_URL, formData).then((res) => {  // post data to server
             console.log(res.data)
             toast.success('User registered successfully')
-        }).then((res) => {
+        }).then(() => {
             resetForm();
         })
 

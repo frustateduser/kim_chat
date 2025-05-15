@@ -1,5 +1,5 @@
-const User = require('../models/User');
-const jwt = require('jsonwebtoken');
+import User from '../models/User.js';
+import jwt from 'jsonwebtoken';
 
 
 
@@ -85,4 +85,4 @@ const verifyCredentials = async (req, res, next) => {
     }
 };
 
-module.exports = { verifyInputs, authMiddleware, verifyCredentials };
+export { verifyInputs, authMiddleware, verifyCredentials };

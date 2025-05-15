@@ -1,8 +1,8 @@
-const Users = require('../models/User');
-const Conversations = require('../models/ChatRoom');
-const {generateConversationId} = require('../utils/uniqueConversationId');
-const {createConversation} = require('../utils/createConversation'); 
-const {addChat} = require('../utils/addChat'); 
+import Users from '../models/User.js';
+import Conversations from '../models/ChatRoom.js';
+import { generateConversationId } from '../utils/uniqueConversationId.js';
+import { createConversation } from '../utils/createConversation.js';
+import { addChat } from '../utils/addChat.js';
 
 const searchUser = async (req, res) => {
     try {
@@ -51,4 +51,4 @@ const searchUser = async (req, res) => {
     }
 };
 
-module.exports = { searchUser };
+export { searchUser };
