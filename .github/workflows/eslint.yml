@@ -52,7 +52,7 @@ jobs:
       - name: Run ESLint for backend
         working-directory: kim_chat_backend
         run: npx eslint . \
-          --ext .js \
+          --ext .js,.jsx,.ts,.tsx \
           --format @microsoft/eslint-formatter-sarif \
           --output-file eslint-backend-results.sarif
         continue-on-error: true
