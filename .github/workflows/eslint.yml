@@ -35,11 +35,11 @@ jobs:
 
       - name: Install dependencies for frontend
         working-directory: kim_chat_frontend
-        run: npm install
+        run: npm ci
 
       - name: Install dependencies for backend
         working-directory: kim_chat_backend
-        run: npm install
+        run: npm ci
 
       # Run ESLint for frontend
       - name: Run ESLint for frontend
