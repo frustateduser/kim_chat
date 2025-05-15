@@ -1,0 +1,70 @@
+name: ESLint
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  schedule:
+    - cron: '30 21 * * 0'
+
+jobs:
+  eslint:
+    name: Run ESLint Scanning
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            kim_chat_frontend/node_modules
+            kim_chat_backend/node_modules
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node_modules-
+
+      - name: Install dependencies for frontend
+        working-directory: kim_chat_frontend
+        run: npm install
+
+      - name: Install dependencies for backend
+        working-directory: kim_chat_backend
+        run: npm install
+
+      - name: Run ESLint for frontend
+        working-directory: kim_chat_frontend
+        run: npx eslint . \
+          --ext .js,.jsx \
+          --format @microsoft/eslint-formatter-sarif \
+          --output-file eslint-frontend-results.sarif
+        continue-on-error: true
+
+      - name: Run ESLint for backend
+        working-directory: kim_chat_backend
+        run: npx eslint . \
+          --ext .js \
+          --format @microsoft/eslint-formatter-sarif \
+          --output-file eslint-backend-results.sarif
+        continue-on-error: true
+
+      - name: Upload frontend analysis results to GitHub
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: kim_chat_frontend/eslint-frontend-results.sarif
+          wait-for-processing: true
+
+      - name: Upload backend analysis results to GitHub
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: kim_chat_backend/eslint-backend-results.sarif
+          wait-for-processing: true
