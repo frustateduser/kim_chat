@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import fetchConversations from "../api/fetchConversations";
 
-function Chatbox({ messages = [], onSendMessage, selectedChat }) {
+function Chatbox({ onSendMessage, selectedChat }) {
     const [newMessage, setNewMessage] = useState("");
     const [chatMessages, setChatMessages] = useState([]);
 

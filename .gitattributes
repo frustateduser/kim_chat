@@ -1,2 +1,2 @@
-# Enforce LF for JSON files
-*.json text eol=lf
+# Enforce LF for all files
+* text=auto eol=lf

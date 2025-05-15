@@ -33,7 +33,7 @@ function Login() {
       localStorage.setItem('userId', res.data.user._id); // Store the userId in localStorage
       toast.success('User logged in successfully')
       Navigate('/chat', { replace: true })
-    }).then((res) => {
+    }).then(() => {
       resetForm();
     })
   };

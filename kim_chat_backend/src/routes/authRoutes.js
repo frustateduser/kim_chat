@@ -1,7 +1,7 @@
-const express = require("express");
-const { signup,login } = require("../controllers/authController");
-const {verifyInputs, verifyCredentials} = require("../middleware/authMiddleware");
-const rateLimit = require("express-rate-limit");
+import express from "express";
+import { signup, login } from "../controllers/authController.js";
+import { verifyInputs, verifyCredentials } from "../middleware/authMiddleware.js";
+import rateLimit from "express-rate-limit";
 
 const router = express.Router();
 
@@ -11,7 +11,7 @@ const limiter = rateLimit({
   message: "Too many signup attempts from this IP, please try again later.",
 });
 
-router.post("/signup",limiter,verifyInputs, signup);
-router.post("/login",limiter, verifyCredentials, login);
+router.post("/signup", limiter, verifyInputs, signup);
+router.post("/login", limiter, verifyCredentials, login);
 
-module.exports = router;
+export default router;
