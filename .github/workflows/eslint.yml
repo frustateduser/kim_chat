@@ -44,7 +44,7 @@ jobs:
       - name: Run ESLint for frontend
         working-directory: kim_chat_frontend
         run: npx eslint . \
-          --ext .js,.jsx \
+          --ext .js,.jsx,.ts,.tsx \
           --format @microsoft/eslint-formatter-sarif \
           --output-file eslint-frontend-results.sarif
         continue-on-error: true
