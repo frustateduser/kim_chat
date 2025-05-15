@@ -64,9 +64,11 @@ jobs:
         with:
           sarif_file: kim_chat_frontend/eslint-frontend-results.sarif
           wait-for-processing: true
+          category: frontend-eslint
 
       - name: Upload backend analysis results to GitHub
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: kim_chat_backend/eslint-backend-results.sarif
           wait-for-processing: true
+          category: backend-eslint
