@@ -48,7 +48,7 @@ jobs:
           npx eslint . --ext .js,.jsx,.ts,.tsx
           --format @microsoft/eslint-formatter-sarif
           --output-file eslint-frontend-results.sarif
-        continue-on-error: true
+        continue-on-error: false
 
       # Run ESLint for backend
       - name: Run ESLint for backend
@@ -57,7 +57,7 @@ jobs:
           npx eslint . --ext .js,.jsx,.ts,.tsx
           --format @microsoft/eslint-formatter-sarif
           --output-file eslint-backend-results.sarif
-        continue-on-error: true
+        continue-on-error: false
 
       - name: Upload frontend analysis results to GitHub
         uses: github/codeql-action/upload-sarif@v3
