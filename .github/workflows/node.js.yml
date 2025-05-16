@@ -37,14 +37,14 @@ jobs:
           ${{ runner.os }}-node-
           ${{ runner.os }}-
           node-
+    - run: |
+        if [ ! -f "kim_chat_frontend/package-lock.json" ]; then
+          echo "No lock file found in kim_chat_frontend. Generating one...";
+          cd kim_chat_frontend && npm install;
+        fi
     - run: cd kim_chat_frontend && npm ci
     - run: cd kim_chat_frontend && npm run build --if-present
     - run: cd kim_chat_frontend && npm test
-    - run: |
-        if [ ! -f "kim_chat_frontend/package-lock.json" ]; then
-          echo "No lock file found in kim_chat_frontend. Running npm install to generate one.";
-          cd kim_chat_frontend && npm install;
-        fi
 
   backend:
     strategy:
@@ -72,11 +72,11 @@ jobs:
           ${{ runner.os }}-node-
           ${{ runner.os }}-
           node-
+    - run: |
+        if [ ! -f "kim_chat_backend/package-lock.json" ]; then
+          echo "No lock file found in kim_chat_backend. Generating one...";
+          cd kim_chat_backend && npm install;
+        fi
     - run: cd kim_chat_backend && npm ci
     - run: cd kim_chat_backend && npm run build --if-present
     - run: cd kim_chat_backend && npm test
-    - run: |
-        if [ ! -f "kim_chat_backend/package-lock.json" ]; then
-          echo "No lock file found in kim_chat_backend. Running npm install to generate one.";
-          cd kim_chat_backend && npm install;
-        fi
