@@ -5,28 +5,30 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ "master" ]
+    branches: ["master"]
   pull_request:
-    branches: [ "master" ]
+    branches: ["master"]
 
 jobs:
   frontend:
-
+    name: Frontend CI
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         node-version: [18.x, 20.x, 22.x]
-
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - name: Cache
+
+    - name: Cache dependencies
       uses: actions/cache@v4.2.3
       with:
         path: |
@@ -37,31 +39,40 @@ jobs:
           ${{ runner.os }}-node-
           ${{ runner.os }}-
           node-
-    - run: |
+
+    - name: Install dependencies
+      run: |
         if [ ! -f "kim_chat_frontend/package-lock.json" ]; then
           echo "No lock file found in kim_chat_frontend. Generating one...";
-          cd kim_chat_frontend && npm install;
+          cd kim_chat_frontend && npm install --package-lock-only;
         fi
-    - run: cd kim_chat_frontend && npm ci
-    - run: cd kim_chat_frontend && npm run build --if-present
-    - run: cd kim_chat_frontend && npm test
+        cd kim_chat_frontend && npm ci
+
+    - name: Build frontend
+      run: cd kim_chat_frontend && npm run build --if-present
+
+    - name: Run frontend tests
+      run: cd kim_chat_frontend && npm test
 
   backend:
+    name: Backend CI
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         node-version: [18.x, 20.x, 22.x]
-
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - name: Cache
+
+    - name: Cache dependencies
       uses: actions/cache@v4.2.3
       with:
         path: |
@@ -72,11 +83,17 @@ jobs:
           ${{ runner.os }}-node-
           ${{ runner.os }}-
           node-
-    - run: |
+
+    - name: Install dependencies
+      run: |
         if [ ! -f "kim_chat_backend/package-lock.json" ]; then
           echo "No lock file found in kim_chat_backend. Generating one...";
-          cd kim_chat_backend && npm install;
+          cd kim_chat_backend && npm install --package-lock-only;
         fi
-    - run: cd kim_chat_backend && npm ci
-    - run: cd kim_chat_backend && npm run build --if-present
-    - run: cd kim_chat_backend && npm test
+        cd kim_chat_backend && npm ci
+
+    - name: Build backend
+      run: cd kim_chat_backend && npm run build --if-present
+
+    - name: Run backend tests
+      run: cd kim_chat_backend && npm test
