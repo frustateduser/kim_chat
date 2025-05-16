@@ -1,8 +1,8 @@
-const User = require('../models/User');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const { generateOTP } = require('../utils/otpService');
-const sendEmail = require('../utils/mailService');
+import User from '../models/User.js';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import generateOTP from '../utils/otpService.js';
+import sendEmail from '../utils/mailService.js';
 
 const signup = async (req, res) => {
   let { name, username, email, password } = req.body;
@@ -132,4 +132,4 @@ const resetPassword = async (req, res) => {
   }
 };
 
-module.exports = { signup, login, forgotPassword, resetPassword };
+export { signup, login, forgotPassword, resetPassword };

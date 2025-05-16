@@ -1,4 +1,4 @@
-const Conversations = require('../models/ChatRoom');
+import Conversations from '../models/ChatRoom.js';
 
 
 const fetchChatHistory = async (req, res) => {
@@ -24,4 +24,4 @@ const fetchChatHistory = async (req, res) => {
     }
 };
 
-module.exports = { fetchChatHistory };
+export { fetchChatHistory };

@@ -1,4 +1,4 @@
-const Chats = require('../models/Message');
+import Chats from '../models/Message.js';
 
 /**
  * Fetch all chat interactions of a user
@@ -34,4 +34,4 @@ const fetchUserInteractions = async (req, res) => {
   }
 };
 
-module.exports = { fetchUserInteractions };
+export { fetchUserInteractions };

@@ -1,6 +1,6 @@
-const express = require('express');
-const { authMiddleware } = require('../middleware/authMiddleware');
-const rateLimit = require('express-rate-limit');
+import express from 'express';
+import { authMiddleware } from '../middleware/authMiddleware.js';
+import rateLimit from 'express-rate-limit';
 
 const router = express.Router();
 
@@ -15,4 +15,4 @@ router.get('/profile', limiter, authMiddleware, (req, res) => {
   res.json({ message: 'Welcome to your profile', userId: req.user.id });
 });
 
-module.exports = router;
+export default router;

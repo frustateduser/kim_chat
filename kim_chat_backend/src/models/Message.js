@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 // Schema for tracking user interactions and conversations
@@ -25,4 +25,4 @@ const ChatSchema = new Schema({
 });
 
 // Export the model
-module.exports = mongoose.model('Chats', ChatSchema);
+export default mongoose.model('Chats', ChatSchema);

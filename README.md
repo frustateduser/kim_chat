@@ -66,9 +66,10 @@ npm install
 Create a `.env` file in the backend root:
 
 ```env
-PORT=3000
-MONGO_URI=mongodb://localhost:27017/kimchat
-JWT_SECRET=your_jwt_secret
+PORT = 3000
+MONGO_URI = mongodb://localhost:27017/kim_chat
+JWT_SECRET = @KIM_chat.secret-k3y
+CLIENT_URL = http://localhost:5173
 ```
 
 Start the backend server:
@@ -92,6 +93,10 @@ Create a `.env` file in the frontend root:
 VITE_REACT_APP_SIGNUP_API_URL=http://localhost:3000/api/auth/signup
 VITE_REACT_APP_LOGIN_API_URL=http://localhost:3000/api/auth/login
 VITE_REACT_APP_PROFILE_API_URL=http://localhost:3000/api/user/profile
+VITE_REACT_APP_FETCH_CHATS_API_URL=http://localhost:3000/api/chat/users/
+VITE_REACT_APP_SEARCH_USER_API_URL=http://localhost:3000/api/chat/search
+VITE_REACT_APP_FETCH_CONVERSATION_API_URL=http://localhost:3000/api/chat/history/
+VITE_REACT_APP_BACKEND_URL=http://localhost:3000
 ```
 
 Start the backend server:
@@ -173,7 +178,7 @@ kim_chat/
 
 ## 🧑‍💻 Contributing
 
-Contributions are welcome!
+Contributions are welcome! See [Contribution guidelines](https://github.com/frustateduser/kim_chat/blob/master/CONTRIBUTING.md) for more info
 
 1. Fork the repository
 2. Create a new branch: `git checkout -b feature-name`
@@ -198,3 +203,54 @@ Inspired by modern chat platforms like Discord and WhatsApp. Built for learning,
 ## 🔗 Contact
 
 For questions or feedback, open an issue or reach out via GitHub.
+
+---
+
+## Running Workflows Locally
+
+Before pushing your changes to a GitHub remote branch, it is recommended to run all workflows locally to ensure everything works as expected.
+
+### Steps to Run Workflows Locally
+
+1. **Install Dependencies**:
+   - Navigate to the respective directories and install the required dependencies:
+     ```powershell
+     cd kim_chat_frontend
+     npm install
+
+     cd ../kim_chat_backend
+     npm install
+     ```
+
+2. **Run ESLint Workflow**:
+   - For the frontend:
+     ```powershell
+     cd kim_chat_frontend
+     npx eslint . --ext .js,.jsx,.ts,.tsx
+     ```
+   - For the backend:
+     ```powershell
+     cd ../kim_chat_backend
+     npx eslint . --ext .js
+     ```
+
+3. **Run Tests (if applicable)**:
+   - If your project includes tests, run them locally:
+     ```powershell
+     npm test
+     ```
+
+4. **Build the Project**:
+   - Ensure the project builds successfully:
+     ```powershell
+     cd kim_chat_frontend
+     npm run build
+
+     cd ../kim_chat_backend
+     npm run build
+     ```
+
+5. **Verify Other Workflows**:
+   - If there are additional workflows, follow their specific instructions to run them locally.
+
+By following these steps, you can ensure that your changes are ready for submission and meet the project's quality standards.

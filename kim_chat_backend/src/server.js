@@ -1,17 +1,17 @@
-const express = require('express');
-const dotenv = require('dotenv');
-const cors = require('cors');
-const connectDataBase = require('./config/db');
-const authRoutes = require('./routes/authRoutes');
-const userRoutes = require('./routes/userRoutes');
-const chatRoutes = require('./routes/chatRoutes');
-const http = require('http');
-const { Server } = require('socket.io');
-const Conversations = require('./models/ChatRoom');
-const User = require('./models/User');
+import express from 'express';
+import dotenv from 'dotenv';
+import cors from 'cors';
+import db from './config/db.js';
+import authRoutes from './routes/authRoutes.js';
+import userRoutes from './routes/userRoutes.js';
+import chatRoutes from './routes/chatRoutes.js';
+import http from 'http';
+import { Server } from 'socket.io';
+import Conversations from './models/ChatRoom.js';
+import User from './models/User.js';
 
 dotenv.config();
-connectDataBase();
+db();
 
 let app = express();
 let server = http.createServer(app);
@@ -81,5 +81,5 @@ io.on('connection', (socket) => {
 });
 
 server.listen(process.env.server_port_local, () => {
-  console.log('server is running at port:', process.env.server_port_local);
+  console.log(`server is running at port: ${process.env.server_port_local}`);
 });

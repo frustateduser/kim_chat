@@ -1,15 +1,15 @@
-const express = require('express');
-const {
+import express from 'express';
+import {
   signup,
   login,
   forgotPassword,
   resetPassword,
-} = require('../controllers/authController');
-const {
+} from '../controllers/authController.js';
+import {
   verifyInputs,
   verifyCredentials,
-} = require('../middleware/authMiddleware');
-const rateLimit = require('express-rate-limit');
+} from '../middleware/authMiddleware.js';
+import rateLimit from 'express-rate-limit';
 
 const router = express.Router();
 
@@ -24,4 +24,4 @@ router.post('/login', limiter, verifyCredentials, login);
 router.post('/forgot-password', limiter, forgotPassword);
 router.post('/reset-password', limiter, resetPassword);
 
-module.exports = router;
+export default router;
