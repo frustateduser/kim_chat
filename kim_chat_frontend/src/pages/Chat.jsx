@@ -1,133 +1,117 @@
-import React, { useState, useEffect } from "react";
-import { fetchProfile } from "../api/chatApi";
-import Sidebar from "../components/Sidebar";
-import Dropdown from "../components/Dropdown";
-import SearchBar from "../components/SearchBar";
-import Chatbox from "../components/Chatbox";
-import fetchChats from "../api/fetchChats";
-import {io} from "socket.io-client";
+import React, { useEffect, useState, useRef } from 'react';
+import wsClient from '@utils/websocket';
 
-function Chat() {
-  const [selectedChat, setSelectedChat] = useState(null);
-  const [messages, setMessages] = useState([]);
-  const [recentChats, setRecentChats] = useState([]);
-  const [socket, setSocket] = useState(null);
+const Chat = ({ user, chat }) => {
+  const [message, setMessage] = useState('');
+  const [messages, setMessages] = useState(chat.messages || []);
+  const chatEndRef = useRef(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token"); // Assuming the token is stored in localStorage
-    if (!token) {
-      console.error("No token found. Please log in.");
-      return;
-    }
+    if (!chat?.conversationId || !user?._id) return;
 
-    fetchProfile(token);
-
-    const loadChats = async () => {
-      try {
-        const chats = await fetchChats(); // Fetch recent chats from the API
-        setRecentChats(chats || []); // Ensure chats is an array
-      } catch (error) {
-        console.error("Error fetching chats:", error);
+    // ✅ Connect and join room
+    const setupWebSocket = () => {
+      if (wsClient.isConnected()) {
+        wsClient.joinRoom(chat.conversationId, user._id);
+      } else {
+        wsClient.connect();
+        wsClient.onOpen(() => {
+          wsClient.joinRoom(chat.conversationId, user._id);
+        });
       }
-    }
-
-    loadChats();
-
-    const newSocket = io(import.meta.env.VITE_REACT_APP_BACKEND_URL); // Replace with your server URL
-    setSocket(newSocket);
-
-    return () => {
-      newSocket.disconnect(); // Clean up the socket connection on unmount
     };
 
-  }, []);
+    setupWebSocket();
+
+    // ✅ Handle incoming messages
+    const handleNewMessage = (data) => {
+      if (data.type === 'message' && data.roomId === chat.conversationId) {
+        setMessages((prev) => [...prev, data]);
+      } else if (data.type === 'system') {
+        console.log('System:', data.message);
+      }
+    };
+
+    wsClient.onMessage(handleNewMessage);
+
+    // ✅ Cleanup on unmount or chat switch
+    return () => {
+      wsClient.offMessage(handleNewMessage);
+    };
+  }, [chat, user]);
 
   useEffect(() => {
-    if (socket && selectedChat){
-      socket.emit("joinRoom", selectedChat.conversationId); // Join the chat room
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
-      socket.on("receiveMessage", (message) => {
-        setMessages((prevMessages) => [...prevMessages, message]); // Update messages state
-      });
-    }
+  const sendMessage = () => {
+    if (!message.trim()) return;
 
-    return () => {
-      if (socket) {
-        socket.off("receiveMessage"); // Clean up the event listener on unmount
-      }
+    const payload = {
+      type: 'message',
+      roomId: chat.conversationId,
+      userId: user._id,
+      message,
+      sender: user.name,
+      timestamp: new Date().toISOString(),
     };
-  }, [socket, selectedChat]); // Re-run when socket or selectedChat changes
 
-  const handleUserFound = (userData) => {
-    if (!userData) {
-      console.error("User data is undefined");
-      return;
-    }
-
-    const { conversationId, recipient } = userData;
-
-    // Add the user to recent chats
-    setRecentChats((prevChats) => {
-      // Avoid duplicate entries
-      const existingChat = prevChats?.find(
-        (chat) => chat.conversationId === conversationId
-      );
-      if (existingChat) return prevChats;
-
-      return [
-        ...prevChats,
-        { interactedUserId: recipient, conversationId },
-      ];
-    });
-
-    // Open the chat in the chatbox
-    setSelectedChat({ interactedUserId: recipient, conversationId });
-  };
-
-  const handleSendMessage = (text) => {
-    const newMessage = { sender: "User", text };
-    setMessages((prevMessages) => [...prevMessages, newMessage]);
-
-    // Emit the message to the server
-    if (socket && selectedChat) {
-      socket.emit("sendMessage", {
-        conversationId: selectedChat.conversationId,
-        senderId: localStorage.getItem("userId"), // Assuming userId is stored in localStorage
-        message: text,
-      });
-    }
+    wsClient.send(payload); // actual send
+    setMessages((prev) => [...prev, payload]); // optimistic update
+    setMessage('');
   };
 
   return (
-    <div className="flex flex-col h-screen">
-      <header className="flex flex-row bg-gradient-to-l from-purple-500 to-white-100 text-white p-4 justify-between">
-        <div className="flex items-center space-x-4">
-          <img src="/kim.svg" alt="KIM Logo" className="h-15 w-15" />
-          <h1 className="text-xl text-purple-700">KIM Chat</h1>
+    <div className="flex flex-col h-full bg-gray-900 text-white">
+      {/* Header */}
+      <div className="p-4 border-b border-gray-700">
+        <h2 className="text-xl font-bold">{chat.interactedUserId?.name || 'Chat'}</h2>
+      </div>
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-4">
+        {messages.map((msg, i) => (
+          <div
+            key={i}
+            className={`my-2 p-3 rounded-lg max-w-lg text-white ${
+              msg.userId === user._id ? 'bg-purple-600 ml-auto' : 'bg-gray-700 mr-auto'
+            }`}
+          >
+            <p className="text-sm font-semibold">
+              {msg.sender || (msg.userId === user._id ? user.name : chat.interactedUserId?.name)}
+            </p>
+            <p className="text-base break-words">{msg.message}</p>
+            <p className="text-xs text-gray-400 mt-1 text-right">
+              {new Date(msg.timestamp).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
+            </p>
+          </div>
+        ))}
+        <div ref={chatEndRef}></div>
+      </div>
+
+      {/* Input */}
+      <div className="p-4 border-t border-gray-700">
+        <div className="flex">
+          <input
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+            placeholder="Type your message..."
+            className="flex-1 p-2 rounded-l-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+          />
+          <button
+            onClick={sendMessage}
+            className="bg-purple-600 hover:bg-purple-700 text-white p-2 rounded-r-lg transition-colors"
+          >
+            Send
+          </button>
         </div>
-        <div className="flex items-center space-x-4 gap-4">
-          <SearchBar onUserFound={handleUserFound} />
-          <Dropdown />
-        </div>
-      </header>
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar chats={recentChats} onSelectChat={setSelectedChat} />
-        <main className="flex-1 flex flex-col overflow-hidden">
-          {selectedChat ? (
-            <Chatbox
-              messages={messages}
-              onSendMessage={handleSendMessage}
-              selectedChat={selectedChat}
-            />
-          ) : (
-            <div className="flex items-center justify-center h-full">
-              <p className="text-gray-500">Select a chat to start messaging</p>
-            </div>
-          )}
-        </main>
       </div>
     </div>
   );
-}
+};
 
 export default Chat;

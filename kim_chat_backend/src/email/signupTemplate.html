@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Email Verification</title>
+    <link rel="stylesheet" href="signupTemplate.css" />
+  </head>
+  <body>
+    <table class="email-container">
+      <tr>
+        <td class="header">
+          <img src="cid:logo@kimchat" alt="Website Logo" class="logo" />
+        </td>
+      </tr>
+
+      <tr>
+        <td class="body-content">
+          <h2 class="welcome-text">Welcome, {{userName}} 👋</h2>
+          <p class="message">
+            Thank you for joining <strong>KIM CHAT</strong>! To complete your registration, please
+            verify your email address using the OTP below.
+          </p>
+
+          <div class="otp-container">
+            <div class="otp">{{OTP_CODE}}</div>
+          </div>
+
+          <p class="note">
+            This OTP is valid for the next 10 minutes.<br />
+            If you didn’t create an account, you can safely ignore this email.
+          </p>
+
+          <hr class="divider" />
+
+          <p class="footer">
+            © {{year}} KIM CHAT. All rights reserved.<br />
+            <a href="https://yourwebsite.com" class="footer-link">Visit Website</a>
+          </p>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

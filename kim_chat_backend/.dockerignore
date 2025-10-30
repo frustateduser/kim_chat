@@ -1,0 +1,41 @@
+node_modules
+npm-debug.log
+Dockerfile
+.dockerignore
+.git
+.gitignore
+README.md
+.vscode
+.env
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Logs and temp files
+*.log
+*.tmp
+*.temp
+
+# Docker files itself (sometimes not needed)
+.dockerignore
+
+# Compiled files or build outputs
+dist/
+build/
+out/
+
+# Environment config files (if you don't want secrets copied)
+.env
+.env.local
+.env.*.local

@@ -1,28 +1,28 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 const { Schema } = mongoose;
 
 // Schema for tracking user interactions and conversations
 const ChatSchema = new Schema({
-    userId: {
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User", // Reference to the User model
+    required: true,
+    unique: true, // Ensure each user has a unique entry
+  },
+  interactions: [
+    {
+      interactedUserId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User', // Reference to the User model
+        ref: "User", // Reference to the User model
         required: true,
-        unique: true // Ensure each user has a unique entry
+      },
+      conversationId: {
+        type: String, // Unique conversation ID
+        required: true,
+      },
     },
-    interactions: [
-        {
-            interactedUserId: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'User', // Reference to the User model
-                required: true,
-            },
-            conversationId: {
-                type: String, // Unique conversation ID
-                required: true
-            }
-        }
-    ]
+  ],
 });
 
 // Export the model
-export default mongoose.model('Chats', ChatSchema);
+export default mongoose.model("Chats", ChatSchema);

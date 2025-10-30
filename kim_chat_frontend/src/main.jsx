@@ -1,18 +1,17 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import Home from './pages/Home.jsx'
-import Chat from './pages/Chat.jsx'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+/**
+ * @fileoverview Entry point for Kim Chat frontend.
+ * Mounts the React app to the DOM root and sets up global providers.
+ * @author
+ * Koustubh Badshah <www.github.com/frustateduser>
+ */
 
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from '@/App';
+import '@/index.css';
 
-createRoot(document.getElementById('body')).render(
-  <StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/chat" element={<Chat />} />
-      </Routes>
-    </BrowserRouter>
-  </StrictMode>
-)
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
