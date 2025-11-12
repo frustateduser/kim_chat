@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@context/useAuth';
-import SearchBar from '@components/Searchbar';
+import SearchBar from '@components/SearchBar';
 
 function Navbar({ onUserFound }) {
   const { userLogout } = useAuth();
