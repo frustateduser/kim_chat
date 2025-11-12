@@ -9,8 +9,8 @@ export async function sendVerificationEmail(toEmail, userName, otpCode) {
   try {
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.resolve(__filename);
-    const htmlPath = path.resolve(__dirname, "../email/signupTemplate.html");
-    const cssPath = path.resolve(__dirname, "../email/signupTemplate.css");
+    const htmlPath = path.resolve(__dirname, "../../email/signupTemplate.html");
+    const cssPath = path.resolve(__dirname, "../../email/signupTemplate.css");
 
     let html = await fs.readFileSync(htmlPath, "utf-8");
     const css = await fs.readFileSync(cssPath, "utf-8");
@@ -38,7 +38,7 @@ export async function sendVerificationEmail(toEmail, userName, otpCode) {
       attachments: [
         {
           filename: "kim.png",
-          path: path.resolve(__dirname, "../email/kim.png"),
+          path: path.resolve(__dirname, "../../email/kim.png"),
           cid: "logo@kimchat",
         },
       ],
