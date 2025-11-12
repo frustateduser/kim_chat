@@ -1,90 +1,81 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useAuth } from '@context/AuthContext';
-import Chat from '@pages/Chat';
+// src/pages/Home.jsx
+import React, { useEffect, useMemo, useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchChats, fetchConversation, setSelectedChat } from '@/store/slices/chatSlice';
 import Navbar from '@components/Navbar';
 import Sidebar from '@components/Sidebar';
-import { fetchUserChats, fetchConversation } from '@api/chat';
-import { fetchUserProfile } from '../api/user';
-
-// Helper function to generate a conversation ID (replicated from backend)
-const generateConversationId = async (userId1, userId2) => {
-  const sortedIds = [userId1, userId2].sort().join('');
-  const encoder = new TextEncoder();
-  const data = encoder.encode(sortedIds);
-  const hashBuffer = await window.crypto.subtle.digest('SHA-512', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
-};
+import Chat from '@pages/Chat';
+import { wsConnect, wsJoinRoom } from '@/store/middleware/wsMiddleware';
+import { useAuth } from '@context/useAuth';
 
 const Home = () => {
+  const dispatch = useDispatch();
   const { user } = useAuth();
-  const [chats, setChats] = useState([]);
-  const [selectedChat, setSelectedChat] = useState(null);
-  const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const chats = useSelector((s) => s.chat.chats);
+  const selectedChat = useSelector((s) => s.chat.selectedChat);
+  const messages = useSelector((s) => s.chat.messages);
 
-  // 🔹 Fetch user's chats on mount
   useEffect(() => {
-    fetchUserProfile().then((res) => {
-      console.log(res);
-      localStorage.setItem('userId', res.data.userId);
-    });
-    if (user?.id) {
-      fetchUserChats(user.id)
-        .then((data) => setChats(data.interactions || []))
-        .catch((err) => console.error('Failed to fetch user chats:', err));
-    }
-  }, [user]);
+    // connect websocket when Home mounts
+    dispatch(wsConnect());
+  }, [dispatch]);
 
-  // 🔹 Handle selecting a chat from sidebar
-  const handleSelectChat = useCallback(async (chat) => {
-    const fullChat = { ...chat };
-    if (chat.conversationId) {
-      try {
-        const conversation = await fetchConversation(chat.conversationId);
-        fullChat.messages = conversation.messages;
-      } catch (error) {
-        console.error('Failed to fetch conversation history:', error);
-        fullChat.messages = [];
-      }
-    }
-    setSelectedChat(fullChat);
-    if (window.innerWidth < 768) setSidebarOpen(false);
-  }, []);
+  useEffect(() => {
+    // initial fetch of profile + chats
+    const userId = user?._id || user?.id || localStorage.getItem('userId');
+    if (userId) dispatch(fetchChats(userId));
+  }, [user, dispatch]);
 
-  // 🔹 Handle selecting a user from search bar
+  // When selectedChat changes, fetch conversation and join room
+  useEffect(() => {
+    if (selectedChat?.conversationId) {
+      dispatch(fetchConversation(selectedChat.conversationId));
+      const userId = user?._id || user?.id || localStorage.getItem('userId');
+      if (userId) dispatch(wsJoinRoom(selectedChat.conversationId, userId));
+    }
+  }, [selectedChat, user, dispatch]);
+
+  const handleSelectChat = useCallback(
+    (chat) => {
+      dispatch(setSelectedChat(chat));
+    },
+    [dispatch]
+  );
+
   const handleSelectUser = useCallback(
     async (foundUser) => {
       if (!user || !foundUser) return;
+      const userId1 = user._id || user.id;
+      const userId2 = foundUser.userId || foundUser._id;
+      // generate conversationId (same helper as before)
+      const sortedIds = [userId1, userId2].sort().join('');
+      const encoder = new TextEncoder();
+      const data = encoder.encode(sortedIds);
+      const hashBuffer = await window.crypto.subtle.digest('SHA-512', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const conversationId = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
 
-      const conversationId = await generateConversationId(
-        user._id,
-        foundUser.userId || foundUser._id
-      );
-
-      const existingChat = chats.find((c) => c.conversationId === conversationId);
-
-      if (existingChat) {
-        handleSelectChat(existingChat);
+      const existing = chats.find((c) => c.conversationId === conversationId);
+      if (existing) {
+        dispatch(setSelectedChat(existing));
       } else {
         const newChat = {
           conversationId,
           interactedUserId: {
             _id: foundUser.userId || foundUser._id,
-            name: foundUser.name,
+            name: foundUser.name || foundUser.username,
             username: foundUser.username,
           },
           messages: [],
         };
-        setChats((prev) => [newChat, ...prev]);
-        setSelectedChat(newChat);
+        // prepend locally (we can use action)
+        dispatch({ type: 'chat/prependChat', payload: newChat });
+        dispatch(setSelectedChat(newChat));
       }
-
-      if (window.innerWidth < 768) setSidebarOpen(false);
     },
-    [user, chats, handleSelectChat]
+    [user, chats, dispatch]
   );
 
-  // 🔹 Memoize Navbar to prevent unnecessary re-renders
   const memoizedNavbar = useMemo(
     () => <Navbar onUserFound={handleSelectUser} />,
     [handleSelectUser]
@@ -94,27 +85,17 @@ const Home = () => {
     <div className="flex flex-col h-screen bg-gray-950 text-white">
       {memoizedNavbar}
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
-        <div
-          className={`transition-all duration-300 ease-in-out ${
-            isSidebarOpen ? 'w-64' : 'w-0'
-          } md:w-64 flex-shrink-0`}
-        >
-          <Sidebar chats={chats} onSelectChat={handleSelectChat} />
+        <div className="w-64 md:block">
+          <Sidebar onChatSelect={handleSelectChat} />
         </div>
 
-        {/* Main Chat Area */}
         <main className="flex-1 flex flex-col">
-          {/* Mobile Sidebar Toggle */}
-          <button
-            onClick={() => setSidebarOpen(!isSidebarOpen)}
-            className="md:hidden p-2 bg-gray-800 text-white"
-          >
-            {isSidebarOpen ? 'Close Chats' : 'Open Chats'}
-          </button>
-
           {selectedChat ? (
-            <Chat key={selectedChat.conversationId} user={user} chat={selectedChat} />
+            <Chat
+              key={selectedChat.conversationId}
+              user={user}
+              chat={{ ...selectedChat, messages }}
+            />
           ) : (
             <div className="flex items-center justify-center h-full text-gray-500">
               <p>Select a chat to start messaging</p>

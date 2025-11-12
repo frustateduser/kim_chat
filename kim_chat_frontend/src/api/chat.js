@@ -15,10 +15,15 @@ export const fetchConversation = async (conversationId) => {
   return res.data;
 };
 
-export const searchUser = async (userId, username) => {
-  const res = await axiosInstance.post(import.meta.env.VITE_API_SEARCH_USER, {
-    username,
-    userId,
-  });
+export const searchUser = async (userId, username, signal) => {
+  // support AbortController signal (axios supports signal option)
+  const res = await axiosInstance.post(
+    import.meta.env.VITE_API_SEARCH_USER,
+    {
+      username,
+      userId,
+    },
+    signal ? { signal } : undefined
+  );
   return res.data;
 };

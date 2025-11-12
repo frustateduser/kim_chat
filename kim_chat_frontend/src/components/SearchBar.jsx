@@ -1,60 +1,109 @@
-import React, { useState, useEffect } from 'react';
-import { searchUser } from '@api/chat';
+// src/components/SearchBar.jsx
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { searchUsers, clearSearchResults } from '@store/slices/userSlice';
 
 const SearchBar = ({ onUserFound }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  // 🔹 Fetch userId from localStorage
-  const userId = localStorage.getItem('userId');
+  const [isFocused, setIsFocused] = useState(false);
+  const dispatch = useAppDispatch();
+  // derive userId from redux auth state first, fall back to persisted localStorage 'user'
+  const authUser = useAppSelector((state) => state.auth?.user);
+  const persistedUser = JSON.parse(localStorage.getItem('user') || 'null');
+  const userId = authUser?._id || authUser?.id || persistedUser?._id || persistedUser?.id || null;
+  const { searchResults, searchLoading, searchError } = useAppSelector((state) => state.user);
+  const abortRef = useRef(null);
+  const searchContainerRef = useRef(null);
 
   useEffect(() => {
-    if (!searchTerm.trim() || !userId) return;
+    if (!searchTerm.trim() || !userId) {
+      dispatch(clearSearchResults());
+      return;
+    }
 
-    const controller = new AbortController();
-    const delayDebounce = setTimeout(async () => {
-      setLoading(true);
-      setError('');
+    const id = setTimeout(() => {
+      if (abortRef.current) abortRef.current.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
 
-      try {
-        const result = await searchUser(userId, searchTerm, { signal: controller.signal });
-
-        if (result.success && result.data?.recipient) {
-          onUserFound(result); // ✅ Send full result to parent
-          setSearchTerm(''); // ✅ Clear search bar
-        } else {
-          setError(result.message || 'User not found');
-        }
-      } catch (err) {
-        if (err.name !== 'CanceledError') {
-          setError('Something went wrong: ' + (err.response?.data?.message || err.message));
-        }
-      } finally {
-        setLoading(false);
-      }
-    }, 5000);
+      // pass controller.signal to enable request cancellation in the API
+      dispatch(searchUsers({ userId, username: searchTerm, signal: controller.signal }));
+    }, 500);
 
     return () => {
-      clearTimeout(delayDebounce);
-      controller.abort();
+      clearTimeout(id);
+      if (abortRef.current) abortRef.current.abort();
     };
-  }, [searchTerm, userId, onUserFound]);
+  }, [searchTerm, userId, dispatch]);
+
+  const handleSelectUser = useCallback(
+    (user) => {
+      if (onUserFound) {
+        onUserFound(user);
+      }
+      setSearchTerm('');
+      dispatch(clearSearchResults());
+      setIsFocused(false);
+    },
+    [onUserFound, dispatch]
+  );
+
+  useEffect(() => {
+    // Automatically select if only one result
+    if (searchResults && searchResults.length === 1 && searchTerm.trim()) {
+      handleSelectUser(searchResults[0]);
+    }
+  }, [searchResults, handleSelectUser, searchTerm]);
+
+  // Handle clicks outside the search bar to close results
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
+        setIsFocused(false);
+        dispatch(clearSearchResults());
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dispatch]);
 
   return (
-    <div className="max-w-md mx-auto relative">
+    <div className="max-w-md mx-auto relative" ref={searchContainerRef}>
       <input
         type="search"
         id="user-search"
         placeholder="Search by username..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        disabled={loading}
+        onFocus={() => setIsFocused(true)}
+        disabled={searchLoading}
         className="block w-full p-4 ps-16 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 disabled:opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
       />
-
-      {loading && <p className="text-blue-500 mt-2 text-sm">Searching...</p>}
-      {error && <p className="text-red-500 mt-2 text-sm">{error}</p>}
+      {isFocused && (
+        <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg">
+          {searchLoading && <p className="p-3 text-gray-500">Searching...</p>}
+          {searchError && <p className="p-3 text-red-500">{searchError}</p>}
+          {searchResults && searchResults.length > 1 && (
+            <ul>
+              {searchResults.map((user) => (
+                <li
+                  key={user._id}
+                  className="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                  onClick={() => handleSelectUser(user)}
+                >
+                  {user.name} (@{user.username})
+                </li>
+              ))}
+            </ul>
+          )}
+          {searchResults?.length === 0 && searchTerm && !searchLoading && (
+            <p className="p-3 text-gray-500">No users found.</p>
+          )}
+        </div>
+      )}
     </div>
   );
 };

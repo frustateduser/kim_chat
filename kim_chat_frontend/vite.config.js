@@ -11,15 +11,16 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@api': path.resolve(__dirname, './src/api'),
-      '@components': path.resolve(__dirname, './src/components'),
-      '@context': path.resolve(__dirname, './src/context'),
-      '@helper': path.resolve(__dirname, './src/helper'),
-      '@pages': path.resolve(__dirname, './src/pages'),
-      '@utils': path.resolve(__dirname, './src/utils'),
-    },
+    alias: [
+      { find: '@', replacement: path.resolve(__dirname, './src') },
+      { find: '@api', replacement: path.resolve(__dirname, './src/api') },
+      { find: '@components', replacement: path.resolve(__dirname, './src/components') },
+      { find: '@context', replacement: path.resolve(__dirname, './src/context') },
+      { find: '@helper', replacement: path.resolve(__dirname, './src/helper') },
+      { find: '@pages', replacement: path.resolve(__dirname, './src/pages') },
+      { find: '@store', replacement: path.resolve(__dirname, './src/store') },
+      { find: '@utils', replacement: path.resolve(__dirname, './src/utils') },
+    ],
   },
   server: {
     fs: {

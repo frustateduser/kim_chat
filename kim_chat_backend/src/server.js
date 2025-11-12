@@ -31,7 +31,14 @@ app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/chat", chatRoutes);
 
-const server = ChatSocket(app, redisClient);
-server.listen(process.env.PORT, () => {
-  console.log(`server is running at port: ${process.env.PORT}`);
+const startServer = async () => {
+  const server = await ChatSocket(app, redisClient);
+  server.listen(process.env.PORT, () => {
+    console.log(`server is running at port: ${process.env.PORT}`);
+  });
+};
+
+startServer().catch((err) => {
+  console.error("Failed to start server:", err);
+  process.exit(1);
 });

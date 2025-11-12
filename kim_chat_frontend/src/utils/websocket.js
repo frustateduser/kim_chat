@@ -17,6 +17,8 @@ let socket = null;
 let messageListeners = [];
 let openListeners = [];
 let reconnectTimeout = null;
+let reconnectAttempts = 0;
+const MAX_RECONNECT_ATTEMPTS = 5;
 let joinedRoom = null; // track the last joined room
 let joinedUser = null;
 
@@ -37,20 +39,35 @@ function connect() {
   socket.onopen = () => {
     console.log('✅ WebSocket connected:', WS_URL);
 
+    // Reset reconnection state on successful connection
+    reconnectAttempts = 0;
+    if (reconnectTimeout) {
+      clearTimeout(reconnectTimeout);
+      reconnectTimeout = null;
+    }
+
     // Resubscribe after reconnect if a room was previously joined
     if (joinedRoom && joinedUser) {
       joinRoom(joinedRoom, joinedUser);
     }
 
+    // Notify all open listeners
     openListeners.forEach((cb) => cb());
   };
 
   socket.onclose = (event) => {
     console.warn('⚠️ WebSocket disconnected:', event.reason || 'Server closed connection');
 
-    // Reconnect automatically
+    if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+      console.error('Max reconnection attempts reached');
+      return;
+    }
+
+    // Reconnect automatically with exponential backoff
+    reconnectAttempts++;
+    const delay = Math.min(1000 * (Math.pow(2, reconnectAttempts) - 1), 10000);
     clearTimeout(reconnectTimeout);
-    reconnectTimeout = setTimeout(connect, 3000);
+    reconnectTimeout = setTimeout(connect, delay);
   };
 
   socket.onerror = (error) => {
@@ -91,39 +108,39 @@ function send(data) {
 
 /**
  * Join a chat room.
- * @param {string} roomId
+ * @param {string} conversationId
  * @param {string} userId
  */
-function joinRoom(roomId, userId) {
+function joinRoom(conversationId, userId) {
   if (!socket || socket.readyState !== WebSocket.OPEN) {
     console.warn('WebSocket not connected. Will rejoin after reconnect.');
-    joinedRoom = roomId;
+    joinedRoom = conversationId;
     joinedUser = userId;
     return;
   }
 
-  joinedRoom = roomId;
+  joinedRoom = conversationId;
   joinedUser = userId;
 
-  const payload = { type: 'join', roomId, userId };
+  const payload = { type: 'join', conversationId, userId };
   send(payload);
 }
 
 /**
  * Send chat message.
- * @param {string} roomId
+ * @param {string} conversationId
  * @param {string} userId
  * @param {string} message
  */
-function sendMessage(roomId, userId, message) {
-  if (!roomId || !userId) {
-    console.error('Missing roomId or userId while sending message.');
+function sendMessage(conversationId, userId, message) {
+  if (!conversationId || !userId) {
+    console.error('Missing conversationId or userId while sending message.');
     return;
   }
 
   const payload = {
     type: 'message',
-    roomId,
+    conversationId,
     userId,
     message,
   };

@@ -11,15 +11,22 @@ const searchUser = async (req, res) => {
     const userId = req.body.userId;
 
     if (!username) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
         message: "Username is required",
       });
     }
 
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "userId is required",
+      });
+    }
+
     let recipient = await Users.findOne({ username: username });
     if (!recipient) {
-      res.status(204).json({
+      return res.status(404).json({
         success: false,
         message: "User not found",
       });
@@ -29,7 +36,7 @@ const searchUser = async (req, res) => {
 
     let conversation = await Conversations.findOne({ conversationId: conversationId });
     if (!conversation) {
-      createConversation(conversationId);
+      await createConversation(conversationId);
     }
 
     try {

@@ -12,7 +12,7 @@ const fetchUserInteractions = async (req, res) => {
     const { userId } = req.params;
 
     if (!userId) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
         message: "UserId is required",
       });
@@ -25,17 +25,18 @@ const fetchUserInteractions = async (req, res) => {
     );
 
     if (!userChats) {
-      res.status(204).json({
+      return res.status(204).json({
         success: false,
         message: "Chats not found",
       });
     }
 
     // Return the user's interactions
-    res.status(200).json({
+    const interactions = userChats.interactions ?? [];
+    return res.status(200).json({
       success: true,
       message: "Chats found",
-      data: { interactions: userChats.interactions },
+      data: { interactions },
     });
   } catch (error) {
     logger.error("Error fetching user interactions:", error);

@@ -1,44 +1,19 @@
 import React, { useEffect, useState, useRef } from 'react';
-import wsClient from '@utils/websocket';
+import { useAppDispatch, useAppSelector } from '@store/hooks';
+import { wsConnect, wsJoinRoom, wsSend } from '@store/middleware/wsMiddleware';
 
 const Chat = ({ user, chat }) => {
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState(chat.messages || []);
+  const dispatch = useAppDispatch();
+  const { messages } = useAppSelector((state) => state.chat);
   const chatEndRef = useRef(null);
 
   useEffect(() => {
     if (!chat?.conversationId || !user?._id) return;
 
-    // ✅ Connect and join room
-    const setupWebSocket = () => {
-      if (wsClient.isConnected()) {
-        wsClient.joinRoom(chat.conversationId, user._id);
-      } else {
-        wsClient.connect();
-        wsClient.onOpen(() => {
-          wsClient.joinRoom(chat.conversationId, user._id);
-        });
-      }
-    };
-
-    setupWebSocket();
-
-    // ✅ Handle incoming messages
-    const handleNewMessage = (data) => {
-      if (data.type === 'message' && data.roomId === chat.conversationId) {
-        setMessages((prev) => [...prev, data]);
-      } else if (data.type === 'system') {
-        console.log('System:', data.message);
-      }
-    };
-
-    wsClient.onMessage(handleNewMessage);
-
-    // ✅ Cleanup on unmount or chat switch
-    return () => {
-      wsClient.offMessage(handleNewMessage);
-    };
-  }, [chat, user]);
+    dispatch(wsConnect());
+    dispatch(wsJoinRoom(chat.conversationId, user._id));
+  }, [chat?.conversationId, user?._id, dispatch]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -49,26 +24,23 @@ const Chat = ({ user, chat }) => {
 
     const payload = {
       type: 'message',
-      roomId: chat.conversationId,
+      conversationId: chat.conversationId,
       userId: user._id,
       message,
       sender: user.name,
       timestamp: new Date().toISOString(),
     };
 
-    wsClient.send(payload); // actual send
-    setMessages((prev) => [...prev, payload]); // optimistic update
+    dispatch(wsSend(payload));
     setMessage('');
   };
 
   return (
     <div className="flex flex-col h-full bg-gray-900 text-white">
-      {/* Header */}
       <div className="p-4 border-b border-gray-700">
         <h2 className="text-xl font-bold">{chat.interactedUserId?.name || 'Chat'}</h2>
       </div>
 
-      {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4">
         {messages.map((msg, i) => (
           <div
@@ -89,10 +61,9 @@ const Chat = ({ user, chat }) => {
             </p>
           </div>
         ))}
-        <div ref={chatEndRef}></div>
+        <div ref={chatEndRef} />
       </div>
 
-      {/* Input */}
       <div className="p-4 border-t border-gray-700">
         <div className="flex">
           <input

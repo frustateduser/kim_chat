@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@context/AuthContext';
+import { useAuth } from '@context/useAuth';
 import SearchBar from '@components/Searchbar';
 
 function Navbar({ onUserFound }) {
@@ -56,7 +56,7 @@ function Navbar({ onUserFound }) {
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 16 16">
               <path
-                fill-rule="evenodd"
+                fillRule="evenodd"
                 d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"
               />
             </svg>

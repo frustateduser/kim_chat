@@ -10,10 +10,11 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from 'react-hot-toast';
 import Home from '@pages/Home';
 import Login from '@pages/Login';
-import { AuthProvider, useAuth } from '@context/AuthContext';
 import Signup from '@pages/Signup';
 import OtpVerification from '@pages/OtpVerification';
 import SignupSuccess from '@pages/SignupSuccess';
+import { AuthProvider } from '@context/AuthContext';
+import { useAuth } from '@context/useAuth';
 
 const PrivateRoute = ({ children }) => {
   const { user } = useAuth();

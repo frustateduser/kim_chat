@@ -1,20 +1,17 @@
-// src/socket/chatSocket.js
 import { createServer } from "node:http";
 import { WebSocketServer, WebSocket } from "ws";
+import dotenv from "dotenv";
 import addMessages from "../utils/addMessages.js";
 import logger from "../utils/logger.js";
-import dotenv from "dotenv";
 
 dotenv.config();
 
-const ChatSocket = (app, redis) => {
+const ChatSocket = async (app, redis) => {
   const server = createServer(app);
-  const wss = new WebSocketServer({ server });
+  const wss = new WebSocketServer({ server, path: "/ws" });
 
-  // 🔹 Track clients per conversation in-memory
   const conversations = new Map();
 
-  // 🔹 Try connecting Redis (for scaling across instances)
   let pub = null;
   let sub = null;
   let redisEnabled = false;
@@ -23,59 +20,62 @@ const ChatSocket = (app, redis) => {
     sub = redis.duplicate();
     pub = redis.duplicate();
 
-    pub.on("error", (err) => logger.error("Redis Publisher error:", err));
+    await pub.connect();
+    await sub.connect();
+
+    redisEnabled = true;
+    logger.info("Redis WebSocket pub/sub enabled ✅");
+
     sub.on("error", (err) => logger.error("Redis Subscriber error:", err));
+    pub.on("error", (err) => logger.error("Redis Publisher error:", err));
   } catch (err) {
-    logger.error("Redis not running, falling back to in-memory conversations" + err);
+    logger.warn("Redis unavailable ❌ Falling back to in-memory broadcast", err);
   }
 
-  // 🔹 Handle Redis incoming messages (distributed conversations)
-  if (sub) {
-    sub.on("message", (conversationId, message) => {
-      if (conversations.has(conversationId)) {
-        conversations.get(conversationId).forEach((client) => {
-          if (client.readyState === WebSocket.OPEN) {
-            client.send(message);
-          }
-        });
-      }
-    });
-  }
+  // if (redisEnabled) {
+  //   sub.on("message", (conversationId, message) => {
+  //     if (!conversations.has(conversationId)) return;
+  //     for (const client of conversations.get(conversationId)) {
+  //       if (client.readyState === WebSocket.OPEN) client.send(message);
+  //     }
+  //   });
+  // }
 
-  // 🔹 Handle WebSocket connections
   wss.on("connection", (ws) => {
-    logger.debug("New WebSocket connection");
+    ws.isAlive = true;
 
-    // Each client can join a conversation
-    ws.on("message", async (rawData) => {
+    ws.on("pong", () => (ws.isAlive = true));
+
+    ws.on("message", async (raw) => {
       try {
-        const data = JSON.parse(rawData);
+        const data = JSON.parse(raw);
 
         if (data.type === "join") {
-          // User joins a conversation
           const { conversationId, userId } = data;
+          ws.userId = userId;
+          ws.conversationId = conversationId;
+
           if (!conversations.has(conversationId)) conversations.set(conversationId, new Set());
           conversations.get(conversationId).add(ws);
-          ws.conversationId = conversationId;
-          ws.userId = userId;
-          ws.send(
-            JSON.stringify({ type: "system", message: `Joined conversation ${conversationId}` })
-          );
 
-          // Subscribe Redis only when first join
-          if (redisEnabled && sub.listenerCount("message") > 0) {
-            await sub.subscribe(conversationId);
+          ws.send(JSON.stringify({ type: "system", message: `Joined ${conversationId}` }));
+
+          if (redisEnabled) {
+            await sub.subscribe(conversationId, (message) => {
+              if (!conversations.has(conversationId)) return;
+              for (const client of conversations.get(conversationId)) {
+                if (client.readyState === WebSocket.OPEN) client.send(message);
+              }
+            });
           }
+
           return;
         }
 
         if (data.type === "message") {
           const { conversationId, userId, message } = data;
-
-          // Save to DB
           const updatedConversation = await addMessages(conversationId, userId, message);
 
-          // Wrap in JSON
           const payload = JSON.stringify({
             type: "message",
             conversationId,
@@ -84,16 +84,10 @@ const ChatSocket = (app, redis) => {
             updatedConversation,
           });
 
-          if (redisEnabled) {
-            await pub.publish(conversationId, payload);
-          } else {
-            // Local broadcast
-            if (conversations.has(conversationId)) {
-              conversations.get(conversationId).forEach((client) => {
-                if (client.readyState === WebSocket.OPEN) {
-                  client.send(payload);
-                }
-              });
+          if (redisEnabled) await pub.publish(conversationId, payload);
+          else {
+            for (const client of conversations.get(conversationId) || []) {
+              if (client.readyState === WebSocket.OPEN) client.send(payload);
             }
           }
         }
@@ -102,35 +96,29 @@ const ChatSocket = (app, redis) => {
       }
     });
 
-    // Handle disconnects
-    ws.on("close", () => {
-      logger.debug(`Client disconnected: ${ws.userId || "unknown"}`);
-      if (ws.conversationId && conversations.has(ws.conversationId)) {
-        conversations.get(ws.conversationId).delete(ws);
-        if (conversations.get(ws.conversationId).size === 0) {
-          conversations.delete(ws.conversationId);
-          if (redisEnabled) sub.unsubscribe(ws.conversationId);
+    ws.on("close", async () => {
+      const { conversationId } = ws;
+      if (!conversationId) return;
+
+      const group = conversations.get(conversationId);
+      if (group) {
+        group.delete(ws);
+        if (group.size === 0) {
+          conversations.delete(conversationId);
+          if (redisEnabled) await sub.unsubscribe(conversationId);
         }
       }
     });
-
-    // Keep connection alive (ping/pong)
-    ws.isAlive = true;
-    ws.on("pong", () => {
-      ws.isAlive = true;
-    });
   });
 
-  // 🔹 Heartbeat to terminate dead connections
-  const interval = setInterval(() => {
+  // Heartbeat
+  setInterval(() => {
     wss.clients.forEach((ws) => {
       if (!ws.isAlive) return ws.terminate();
       ws.isAlive = false;
       ws.ping();
     });
   }, 30000);
-
-  wss.on("close", () => clearInterval(interval));
 
   app.closeSocket = () => {
     wss.close();
