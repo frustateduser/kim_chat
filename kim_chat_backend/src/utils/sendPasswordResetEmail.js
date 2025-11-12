@@ -3,14 +3,18 @@ import fs from "fs-extra";
 import path from "path";
 import juice from "juice";
 import logger from "../utils/logger.js";
+import { fileURLToPath } from "url";
 
 export async function sendPasswordResetEmail(toEmail, username, otp) {
   try {
-    const htmlPath = path.join(process.cwd(), "src", "email", "passwordReset.html");
-    const cssPath = path.join(process.cwd(), "src", "email", "passwordReset.css");
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
 
-    let html = await fs.readFile(htmlPath, "utf-8");
-    const css = await fs.readFile(cssPath, "utf-8");
+    const htmlPath = path.resolve(__dirname, "../email/passwordReset.html");
+    const cssPath = path.resolve(__dirname, "../email/passwordReset.css");
+
+    let html = await fs.readFileSync(htmlPath, "utf-8");
+    const css = await fs.readFileSync(cssPath, "utf-8");
 
     html = html
       .replace(/{{USERNAME}}/g, username)
@@ -35,7 +39,7 @@ export async function sendPasswordResetEmail(toEmail, username, otp) {
       attachments: [
         {
           filename: "kim.png",
-          path: path.join(process.cwd(), "src", "email", "kim.png"),
+          path: path.resolve(__dirname, "../email/kim.png"),
           cid: "kimlogo@cid",
         },
       ],

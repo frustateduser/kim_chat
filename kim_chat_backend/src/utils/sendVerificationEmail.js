@@ -3,15 +3,17 @@ import fs from "fs-extra";
 import juice from "juice";
 import path from "path";
 import logger from "./logger.js";
+import { fileURLToPath } from "url";
 
 export async function sendVerificationEmail(toEmail, userName, otpCode) {
   try {
-    const __dirname = path.resolve();
-    const htmlPath = path.join(__dirname, "src", "email", "signupTemplate.html");
-    const cssPath = path.join(__dirname, "src", "email", "signupTemplate.css");
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.resolve(__filename);
+    const htmlPath = path.resolve(__dirname, "../email/signupTemplate.html");
+    const cssPath = path.resolve(__dirname, "../email/signupTemplate.css");
 
-    let html = await fs.readFile(htmlPath, "utf-8");
-    const css = await fs.readFile(cssPath, "utf-8");
+    let html = await fs.readFileSync(htmlPath, "utf-8");
+    const css = await fs.readFileSync(cssPath, "utf-8");
 
     html = html
       .replace(/{{userName}}/g, userName)
@@ -36,7 +38,7 @@ export async function sendVerificationEmail(toEmail, userName, otpCode) {
       attachments: [
         {
           filename: "kim.png",
-          path: path.join(__dirname, "src", "email", "kim.png"),
+          path: path.resolve(__dirname, "../email/kim.png"),
           cid: "logo@kimchat",
         },
       ],
