@@ -3,9 +3,13 @@ import DailyRotateFile from "winston-daily-rotate-file";
 import fs from "fs";
 import path from "path";
 
+const isProduction = process.env.NODE_ENV === "production";
+
 // Ensure logs folder exists
 const logDir = "logs";
-if (!fs.existsSync(logDir)) fs.mkdirSync(logDir);
+if (!isProduction) {
+  if (!fs.existsSync(logDir)) fs.mkdirSync(logDir);
+}
 
 // Define custom log format
 const logFormat = format.printf(({ timestamp, level, message, stack }) => {

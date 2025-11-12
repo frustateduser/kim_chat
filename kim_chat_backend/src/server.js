@@ -25,7 +25,9 @@ app.use(
   })
 );
 app.use(cookieParser());
-app.use(requestLogger); // to remove only for debug incomming request's
+if (process.env.NODE_ENV === "development") {
+  app.use(requestLogger); // to remove only for debug incomming request's
+}
 
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
