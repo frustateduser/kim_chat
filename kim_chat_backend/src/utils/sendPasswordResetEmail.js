@@ -10,8 +10,8 @@ export async function sendPasswordResetEmail(toEmail, username, otp) {
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
 
-    const htmlPath = path.resolve(__dirname, "../../email/passwordReset.html");
-    const cssPath = path.resolve(__dirname, "../../email/passwordReset.css");
+    const htmlPath = path.resolve(__dirname, "../email/passwordReset.html");
+    const cssPath = path.resolve(__dirname, "../email/passwordReset.css");
 
     let html = await fs.readFileSync(htmlPath, "utf-8");
     const css = await fs.readFileSync(cssPath, "utf-8");
@@ -39,7 +39,7 @@ export async function sendPasswordResetEmail(toEmail, username, otp) {
       attachments: [
         {
           filename: "kim.png",
-          path: path.resolve(__dirname, "../../email/kim.png"),
+          path: path.resolve(__dirname, "../email/kim.png"),
           cid: "kimlogo@cid",
         },
       ],
