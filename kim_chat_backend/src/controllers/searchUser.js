@@ -4,6 +4,7 @@ import { generateConversationId } from "../utils/uniqueConversationId.js";
 import { createConversation } from "../utils/createConversation.js";
 import { addChat } from "../utils/addChat.js";
 import logger from "../utils/logger.js";
+import mongoose from "mongoose";
 
 const searchUser = async (req, res) => {
   try {
@@ -36,6 +37,18 @@ const searchUser = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: "User not found",
+      });
+    }
+
+    // Validate userId and recipient._id before proceeding
+    if (
+      typeof userId !== "string" ||
+      !mongoose.isValidObjectId(userId) ||
+      !mongoose.isValidObjectId(recipient._id)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid userId or recipient ID format",
       });
     }
 

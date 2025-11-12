@@ -19,15 +19,20 @@
  * @returns {*}
  */
 function sanitizeForLog(value) {
+  // Remove control chars: \n, \r, \t, \f from strings/keys/values
+  const controlCharsRegex = /[\n\r\t\f]/g;
   if (typeof value === 'string') {
-    return value.replace(/[\n\r]/g, '');
+    // Strip control chars and wrap in quotes if user input (conservative)
+    return `"${value.replace(controlCharsRegex, '')}"`;
   } else if (Array.isArray(value)) {
     return value.map(sanitizeForLog);
   } else if (value && typeof value === 'object') {
     const sanitized = {};
     for (const k in value) {
       if (Object.prototype.hasOwnProperty.call(value, k)) {
-        sanitized[k] = sanitizeForLog(value[k]);
+        // Sanitize keys and values
+        const safeKey = k.replace(controlCharsRegex, '');
+        sanitized[safeKey] = sanitizeForLog(value[k]);
       }
     }
     return sanitized;
@@ -106,7 +111,8 @@ function connect() {
         console.log('🪶 System:', `"${safeMessage}"`);
       } else if (data.type === 'message') {
         // Sanitize all string content recursively before logging to prevent log injection
-        console.log('💬 Message:', sanitizeForLog(data));
+        const safeString = JSON.stringify(sanitizeForLog(data));
+        console.log('💬 Message (user msg):', safeString);
       }
 
       messageListeners.forEach((cb) => cb(data));
