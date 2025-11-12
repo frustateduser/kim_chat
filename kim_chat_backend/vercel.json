@@ -5,12 +5,5 @@
   ],
   "routes": [
     { "src": "/api/(.*)", "dest": "src/server.js" }
-  ],
-  "includeFiles": [
-    "src/email/signupTemplate.html",
-    "src/email/signupTemplate.css",
-    "src/email/kim.png",
-    "src/email/passwordReset.html",
-    "src/email/passwordReset.css"
   ]
 }
