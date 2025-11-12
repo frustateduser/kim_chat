@@ -12,7 +12,7 @@ const limiter = rateLimit({
 
 // Protected route example
 router.get("/profile", limiter, authMiddleware, (req, res) => {
-  res.json({ message: "Welcome to your profile", userId: req.user.id });
+  res.json({ success: true, message: "Welcome to your profile", data: { userId: req.user.id } });
 });
 
 export default router;

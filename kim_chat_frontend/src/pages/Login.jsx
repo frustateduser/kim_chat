@@ -1,106 +1,68 @@
-import React from 'react'
-import axios from 'axios';
-import { ToastContainer, toast } from 'react-toastify';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@context/useAuth';
+import Footer from '@components/Footer';
 
-function Login() {
+const Login = () => {
+  const { userLogin } = useAuth();
+  const navigate = useNavigate();
+  const [form, setForm] = useState({ username: '', password: '' });
 
-  const [formData, setFormData] = React.useState({
-    username: '',
-    password: '',
-  });
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
-  const getValue = (e) => {
-    let oldData = { ...formData };
-    oldData[e.target.name] = e.target.value;
-    setFormData(oldData);
-  };
-
-  const resetForm = () => {
-    setFormData({
-      username: '',
-      password: '',
-    });
-  };
-
-  const Navigate = useNavigate(); // for navigation
-
-  let submitData = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    axios.post(import.meta.env.VITE_REACT_APP_LOGIN_API_URL, formData).then((res) => {
-      console.log(res.data)
-      localStorage.setItem('token', res.data.token); // Store the token in localStorage
-      localStorage.setItem('userId', res.data.user._id); // Store the userId in localStorage
-      toast.success('User logged in successfully')
-      Navigate('/chat', { replace: true })
-    }).then(() => {
-      resetForm();
-    })
+    await userLogin(form.username, form.password);
+    navigate('/');
   };
 
   return (
     <>
-      <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
-        <ToastContainer />
-        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form method="POST" className="space-y-6">
-            <div>
-              <label htmlFor="username" className="block text-sm/6 font-medium text-gray-900">
-                Username
-              </label>
-              <div className="mt-2">
-                <input
-                  id="username"
-                  name="username"
-                  type="username"
-                  required
-                  autoComplete="username"
-                  onChange={getValue}
-                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-purple-600 sm:text-sm/6"
-                />
-              </div>
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between">
-                <label htmlFor="password" className="block text-sm/6 font-medium text-gray-900">
-                  Password
-                </label>
-                <div className="text-sm">
-                  <a href="#" className="font-semibold text-purple-600 hover:text-purple-400">
-                    Forgot password?
-                  </a>
-                </div>
-              </div>
-              <div className="mt-2">
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  autoComplete="current-password"
-                  onChange={getValue}
-                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-purple-600 sm:text-sm/6"
-                />
-              </div>
-            </div>
-
-            <div>
-              <button
-                type="submit"
-                onClick={submitData}
-                className="flex w-full justify-center rounded-md bg-purple-500 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-purple-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
-              >
-                Log In
-              </button>
-            </div>
-          </form>
-        </div>
+      <div className="relative">
+        <nav className="navbar border border-purple-500 bg-gradient-to-l from-purple-500 to-white p-4 flex items-center justify-between w-full shadow-md z-20">
+          {/* Left Section: Logo + Title */}
+          <div className="flex items-center space-x-3 flex-shrink-0">
+            <img src="kim.svg" alt="logo" className="w-14 h-14" />
+            <h1 className="text-2xl font-bold text-purple-700 sm:block">KIM Chat</h1>
+          </div>
+        </nav>
       </div>
+      <div className="flex justify-center items-center h-full mt-3 pt-24">
+        <form onSubmit={handleSubmit} className="bg-gray-900 p-6 rounded-2xl shadow-lg w-96">
+          <h2 className="text-2xl font-semibold mb-4 text-center">Welcome Back!!! 🙋‍♂️</h2>
+          <input
+            type="text"
+            name="username"
+            placeholder="Username"
+            onChange={handleChange}
+            className="w-full p-2 mb-3 rounded bg-gray-800 border border-gray-700"
+            required
+          />
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            onChange={handleChange}
+            className="w-full p-2 mb-3 rounded bg-gray-800 border border-gray-700"
+            required
+          />
+          <button
+            type="submit"
+            className="w-full bg-indigo-600 hover:bg-indigo-700 p-2 rounded mt-2"
+          >
+            Login
+          </button>
+          <p className="text-center text-sm mt-3 text-gray-400">
+            Don’t have an account?{' '}
+            <span onClick={() => navigate('/signup')} className="text-indigo-400 cursor-pointer">
+              Signup
+            </span>
+          </p>
+        </form>
+      </div>
+      <Footer />
     </>
-  )
-}
-
-
+  );
+};
 
 export default Login;

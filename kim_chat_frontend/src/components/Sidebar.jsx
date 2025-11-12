@@ -1,24 +1,49 @@
-import React from "react";
+// src/components/Sidebar.jsx
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchChats, setSelectedChat } from '@/store/slices/chatSlice';
 
-const Sidebar = ({ chats, onSelectChat }) => {
+const Sidebar = ({ onChatSelect }) => {
+  const dispatch = useDispatch();
+  const chats = useSelector((s) => s.chat.chats);
+  const loading = useSelector((s) => s.chat.loading);
+  const user = useSelector((s) => s.auth.user);
+
+  useEffect(() => {
+    const userId = user?.id || user?._id || localStorage.getItem('userId') || null;
+    if (userId) {
+      dispatch(fetchChats(userId));
+    }
+  }, [user, dispatch]);
+
+  const handleSelect = (chat) => {
+    dispatch(setSelectedChat(chat));
+    if (onChatSelect) onChatSelect(chat);
+  };
+
   return (
-    <div className="w-64 bg-gray-100 h-full p-4 border-r">
-      <h2 className="text-lg font-bold mb-4">Recent Chats</h2>
-      <ul className="space-y-2">
-        {Array.isArray(chats) && chats.length > 0 ? (
-          chats.map((chat) => (
-            <li
-              key={`${chat.conversationId}-${chat.interactedUserId?._id}`} // Ensure unique key
-              className="p-2 bg-white rounded shadow cursor-pointer hover:bg-purple-400"
-              onClick={() => onSelectChat(chat)}
-            >
-              {chat.interactedUserId?.name || "Unknown User"} {/* Display user name */}
-            </li>
-          ))
+    <div className="flex flex-col w-full max-w-sm border-r border-gray-300 dark:border-gray-700">
+      <div className="p-4 font-bold">Chats</div>
+      <div className="flex-1 overflow-auto">
+        {loading ? (
+          <p className="p-4 text-gray-500">Loading chats...</p>
+        ) : chats.length === 0 ? (
+          <p className="p-4 text-gray-500">No chats yet</p>
         ) : (
-          <p className="text-gray-500">No recent chats available.</p>
+          chats.map((c) => (
+            <div
+              key={c.conversationId}
+              className="p-3 border-b hover:bg-gray-800 cursor-pointer"
+              onClick={() => handleSelect(c)}
+            >
+              <div className="text-sm font-semibold">
+                {c.interactedUserId?.name || c.interactedUserId?.username}
+              </div>
+              <div className="text-xs text-gray-400">{c.lastMessage || c.preview || ''}</div>
+            </div>
+          ))
         )}
-      </ul>
+      </div>
     </div>
   );
 };
