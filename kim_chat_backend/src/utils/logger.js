@@ -35,7 +35,12 @@ const logger = createLogger({
         logFormat
       ),
     }),
+  ],
+  exitOnError: false, // Do not exit on handled exceptions
+});
 
+if (!isProduction) {
+  (logger.add(
     // File transport: errors only
     new DailyRotateFile({
       filename: path.join(logDir, "error-%DATE%.log"),
@@ -43,17 +48,17 @@ const logger = createLogger({
       level: "error",
       maxFiles: "14d",
       zippedArchive: true,
-    }),
-
-    // File transport: all logs
-    new DailyRotateFile({
-      filename: path.join(logDir, "combined-%DATE%.log"),
-      datePattern: "YYYY-MM-DD",
-      maxFiles: "14d",
-      zippedArchive: true,
-    }),
-  ],
-  exitOnError: false, // Do not exit on handled exceptions
-});
+    })
+  ),
+    logger.add(
+      // File transport: all logs
+      new DailyRotateFile({
+        filename: path.join(logDir, "combined-%DATE%.log"),
+        datePattern: "YYYY-MM-DD",
+        maxFiles: "14d",
+        zippedArchive: true,
+      })
+    ));
+}
 
 export default logger;
