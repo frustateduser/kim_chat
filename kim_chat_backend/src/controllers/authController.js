@@ -105,7 +105,8 @@ const login = async (req, res) => {
       data: { accessToken, user: safeUser },
     });
   } catch (error) {
-    logger.error("Login error for username->%s: %s", username, error);
+    const sanitizedUsername = username ? username.replace(/\r|\n/g, "") : "";
+    logger.error("Login error for username->%s: %s", sanitizedUsername, error);
     res.status(500).json({
       success: false,
       message: "Internal server error",

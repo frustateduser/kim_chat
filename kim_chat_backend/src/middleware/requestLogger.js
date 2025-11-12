@@ -1,7 +1,8 @@
 import logger from "../utils/logger.js";
 
 const requestLogger = (req, res, next) => {
-  logger.info("%s %s %s", req.method, req.url, JSON.stringify(req.body));
+  const sanitizedUrl = typeof req.url === "string" ? req.url.replace(/[\n\r]/g, "") : "";
+  logger.info("%s %s %s", req.method, sanitizedUrl, JSON.stringify(req.body));
   next();
 };
 

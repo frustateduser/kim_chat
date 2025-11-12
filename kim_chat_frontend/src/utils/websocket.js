@@ -13,6 +13,28 @@
  * Koustubh Badshah <www.github.com/frustateduser>
  */
 
+/**
+ * Recursively sanitize object/string for safe logging (removes \n and \r from all string values).
+ * @param {*} value
+ * @returns {*}
+ */
+function sanitizeForLog(value) {
+  if (typeof value === 'string') {
+    return value.replace(/[\n\r]/g, '');
+  } else if (Array.isArray(value)) {
+    return value.map(sanitizeForLog);
+  } else if (value && typeof value === 'object') {
+    const sanitized = {};
+    for (const k in value) {
+      if (Object.prototype.hasOwnProperty.call(value, k)) {
+        sanitized[k] = sanitizeForLog(value[k]);
+      }
+    }
+    return sanitized;
+  }
+  return value;
+}
+
 let socket = null;
 let messageListeners = [];
 let openListeners = [];
@@ -80,9 +102,11 @@ function connect() {
 
       // Debugging logs for backend messages
       if (data.type === 'system') {
-        console.log('🪶 System:', data.message);
+        const safeMessage = String(data.message).replace(/[\r\n]/g, '');
+        console.log('🪶 System:', `"${safeMessage}"`);
       } else if (data.type === 'message') {
-        console.log('💬 Message:', data);
+        // Sanitize all string content recursively before logging to prevent log injection
+        console.log('💬 Message:', sanitizeForLog(data));
       }
 
       messageListeners.forEach((cb) => cb(data));

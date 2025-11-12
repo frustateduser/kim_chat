@@ -5,7 +5,8 @@ const addChat = async (userId, interactedUserId, conversationId) => {
   try {
     await Chats.updateOne(
       {
-        userId: userId,
+        userId: { $eq: userId },
+        "interactions.interactedUserId": interactedUserId,
         "interactions.conversationId": { $ne: conversationId },
       }, // Check if conversationId doesn't exist
       {

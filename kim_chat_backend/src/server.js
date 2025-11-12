@@ -10,6 +10,7 @@ import ChatSocket from "./socket/chatSocket.js";
 import requestLogger from "./middleware/requestLogger.js";
 import cookieParser from "cookie-parser";
 import { connectRedis } from "./utils/redisClient.js";
+import { csrf } from "lusca";
 
 connectDataBase();
 const redisClient = await connectRedis();
@@ -25,6 +26,7 @@ app.use(
   })
 );
 app.use(cookieParser());
+app.use(csrf());
 app.use(requestLogger); // to remove only for debug incomming request's
 
 app.use("/api/auth", authRoutes);
